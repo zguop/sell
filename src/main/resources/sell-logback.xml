@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 控制台输出格式 -->
+    <property name="CONSOLE_PATTERN"
+              value="%date{yyyy-MM-dd HH:mm:ss} | %highlight(%-5level) | %boldYellow(%thread) | %boldGreen(%logger) | %msg | [%file:%line]%n "/>
+    <!-- 文件输出格式 -->
+    <property name="FILE_PATTERN"
+              value="%date{yyyy-MM-dd HH:mm:ss} | %-5level | %thread | %logger | %msg | [%file:%line]%n "/>
+
+    <springProfile name="local">
+        <property name="FILE_PATH" value="~/app/logs/sell/local"/>
+        <property name="ERROR_FILE_PATH" value="~/app/logs/sell/error"/>
+    </springProfile>
+
+    <!--控制台输出-->
+    <appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="local">
+        <appender name="info_appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${FILE_PATH}/info.log</file>
+            <!--滚动策略-->
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--路径-->
+                <fileNamePattern>${FILE_PATH}/sell.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxHistory>100000</maxHistory>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <MaxFileSize>10MB</MaxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder>
+                <pattern>${FILE_PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <appender name="error_appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${ERROR_FILE_PATH}/error.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- 文件名称 -->
+                <fileNamePattern>${ERROR_FILE_PATH}/error-gtr.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <!-- 文件最大保存历史数量 -->
+                <maxHistory>100000</maxHistory>
+                <!-- 日志文件rolling触发策略 -->
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <MaxFileSize>10MB</MaxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+
+            <encoder>
+                <pattern>${FILE_PATTERN}</pattern>
+                <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+                <!--error日志-->
+                <level>ERROR</level>
+                <!--匹配接收-->
+                <onMatch>ACCEPT</onMatch>
+                <!--拒绝-->
+                <onMismatch>DENY</onMismatch>
+            </filter>
+        </appender>
+
+    </springProfile>
+
+    <root level="info">
+        <appender-ref ref="consoleLog"/>
+        <appender-ref ref="info_appender"/>
+        <appender-ref ref="error_appender"/>
+    </root>
+</configuration>

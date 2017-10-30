@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: local
+##logback日志输出配置
+logging:
+  config: classpath:sell-logback.xml
